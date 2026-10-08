@@ -336,6 +336,8 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: real names.** The new Google Sheet is "HYD-SY Follow-up Programs" and its Apps Script project "Follow-ups
+  Planner" (user). Setup guide steps 1, 2 and 5 and the organiser video's sheet title use them.
 - **2026-10-08: moved to the user's repository.** `csreenath-rgb/program-planner-sahaja-hyd` (the user turned the fork into
   one branch, `main`, at 6ccd54f); its `main` was fast-forwarded to 28c0bc8 (stages 4b, 4c, guide links). Continue there, on
   `main`. `MamtaMukeshK/task-self-assign-sahaja-hyd` keeps the old branch as a backup (not in that repository's main).

@@ -66,7 +66,7 @@ const tabHtml = (name, o = {}) => {
 const rowsWhere = (name, test) => ss.getSheetByName(name).grid.map((r, i) => [r, i + 1]).filter(([r, i]) => i > 1 && test(r)).map(([, i]) => i);
 
 const app = `<div id="cap"><span id="step">Guide</span><span id="text"></span></div>
-<div id="win"><div id="doc">Follow-up Program 2026</div>
+<div id="win"><div id="doc">HYD-SY Follow-up Programs</div>
 <div id="menus"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span><span id="m-program">Program</span></div>
 <div id="fbar"><span id="ref">A1</span><span id="fx"></span></div>
 <div id="note"></div><div id="wrap"><table id="grid"></table></div>

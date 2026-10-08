@@ -154,7 +154,7 @@ Anything you have already tried or ruled out:
 ```
 
 ## 12. Second app in this repository: Follow-up Program sign-up (2026-10-07)
-A separate sheet, Apps Script project and page link; the tour app above is unchanged. Design: `docs/followup/SPEC.md`;
+A separate sheet ("HYD-SY Follow-up Programs"), Apps Script project ("Follow-ups Planner") and page link; the tour app above is unchanged. Design: `docs/followup/SPEC.md`;
 build choices: `docs/followup/STAGE1_PLAN.md`; state and server functions: `resume.md`. Server: `followup/Code.gs`
 (stage 1 built); setup guide: `followup/SETUP_GUIDE.html` (stage 3, with the organiser's WhatsApp-list menu); page: `followup/Index.html` (stages 2a and 2b built 2026-10-08: calendar, list, select, repeat, confirmation, release,
 register others, My Registrations, the cancellation notice, Telugu/Hindi). Data: "Program plan" tab (one line per regular
