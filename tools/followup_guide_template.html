@@ -103,7 +103,10 @@ Takes about 20 minutes on a laptop or desktop computer (not a phone).</p>
   <li>Click the blue <b>Copy Code.gs</b> button below, click in the empty code area and paste with <kbd>Ctrl</kbd>+<kbd>V</kbd>
     (Mac: <kbd>⌘</kbd>+<kbd>V</kbd>).</li>
   <li>Save with <kbd>Ctrl</kbd>+<kbd>S</kbd> (Mac: <kbd>⌘</kbd>+<kbd>S</kbd>).</li>
-  <li>Check: the first line is <code>/**</code> and the last line starts with <code>function norm_</code>. Do not change anything in it.</li>
+  <li>Check: line 2 reads <code>* Follow-up Program sign-up: the server for the Follow-up workbook</code> and the last line starts with
+    <code>function norm_</code>. Do not change anything in it.</li>
+  <li><b>Last line starts with <code>function cacheKey_</code>?</b> That is the <b>tour page's</b> code from the other setup guide. Delete it
+    all and copy again with the button below (this mix-up happened on the first real set-up, 2026-10-08).</li>
 </ol>
 <div class="codehead"><b>Code.gs</b> <button class="copy" data-target="code-gs">Copy Code.gs</button></div>
 <pre id="code-gs">{{CODE_GS}}</pre>
@@ -113,7 +116,8 @@ Takes about 20 minutes on a laptop or desktop computer (not a phone).</p>
   <li>On the left, click the <b>+</b> next to <b>Files</b> and choose <b>HTML</b>.</li>
   <li>Type the name exactly <code>Index</code> (capital I, <b>without</b> ".html") and press <kbd>Enter</kbd>.</li>
   <li>Select everything in the new file and delete it, then click <b>Copy Index.html</b> below, paste, and save.</li>
-  <li>Check: <b>Files</b> now lists exactly <b>Code.gs</b> and <b>Index.html</b>.</li>
+  <li>Check: <b>Files</b> now lists exactly <b>Code.gs</b> and <b>Index.html</b>, and line 6 of Index.html reads
+    <code>&lt;title&gt;Follow-up Program: Sign-up&lt;/title&gt;</code> (otherwise it is the tour page's file: copy again below).</li>
 </ol>
 <div class="codehead"><b>Index.html</b> <button class="copy" data-target="index-html">Copy Index.html</button></div>
 <pre id="index-html">{{INDEX_HTML}}</pre>
@@ -133,7 +137,8 @@ Takes about 20 minutes on a laptop or desktop computer (not a phone).</p>
 </ol>
 <div class="box warn"><b>If the Program menu does not appear</b> (found on the first real set-up, 2026-10-08):
   <ol>
-    <li>In the Apps Script tab, check <b>Code.gs</b> has no orange dot (saved) and its last line starts with <code>function norm_</code>.</li>
+    <li>In the Apps Script tab, check <b>Code.gs</b> has no orange dot (saved) and its last line starts with <code>function norm_</code>. If it ends with
+      <code>function cacheKey_</code>, it is the tour page's code (no Program menu in it): paste Code.gs and Index.html again from Parts 3 and 4.</li>
     <li>In the function drop-down next to <b>Debug</b>, choose <b>setUpSheet</b> and click <b>&#9655; Run</b>. Approve the permissions as
       above. This does the whole set-up without the menu. Then choose <b>onOpen</b> and click <b>&#9655; Run</b>: the Program menu appears in
       the sheet tab. From now on it appears by itself when the sheet opens.</li>

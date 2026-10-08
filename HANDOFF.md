@@ -338,7 +338,9 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
 ## Next step
 - **2026-10-08: first real set-up: no "Program" menu after reload** (user). Code checked: standard onOpen, file loads
   cleanly. Guide Part 5 now has a fallback box: run setUpSheet / onOpen from the Apps Script tab, one Google account per
-  window, check Executions for onOpen. Waiting for the user's result (Executions status if it still fails).
+  window, check Executions for onOpen. **Cause found:** the user's Code.gs ended with `function cacheKey_` = the tour page's
+  Code.gs (from the other guide), which has no onOpen. Guide Parts 3/4 now say how to tell the two files apart (line 2 of
+  Code.gs, line 6 of Index.html, last line `function norm_`).
 - **2026-10-08: real names.** The new Google Sheet is "HYD-SY Follow-up Programs" and its Apps Script project "Follow-ups
   Planner" (user). Setup guide steps 1, 2 and 5 and the organiser video's sheet title use them.
 - **2026-10-08: moved to the user's repository.** `csreenath-rgb/program-planner-sahaja-hyd` (the user turned the fork into

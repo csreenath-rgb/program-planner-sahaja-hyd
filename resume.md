@@ -153,6 +153,8 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
 - Guide templates: `tools/followup_guide_template.html` reuses the tour guide's head/style/Copy-button script
   (assembled once by a script); `tools/build_guide.py` builds both guides; a browser test checks the Copy boxes equal the files.
 
+- Two setup guides look alike: on the first real set-up the user pasted the tour's Code.gs into the Follow-up project (no
+  Program menu). Give each guide an unmistakable check (a quoted line 2 / title line) and say what the wrong file looks like.
 - Check how the code treats input it doesn't expect, not only valid input: lists in one-value columns were silently cut
   to their first value with nothing in the Update report (found 2026-10-08 by trying them). Refuse loudly instead.
 - Files the user uploads may hold real phone numbers: copy them into their own scratch folder, read with `python3 -I`,
