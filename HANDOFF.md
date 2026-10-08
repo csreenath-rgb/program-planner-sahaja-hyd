@@ -336,6 +336,27 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: second week in the calendar: MOCK-UP ONLY, waiting for the user's go.** User: "add another week which looks
+  same as current week but below it", then "show me the mockup before starting work on it". Mock-up (scratch copy of the
+  page, real page unchanged): `docs/followup/mockup-two-weeks/` (`mock.js` re-renders `mock-phone.png`, `mock-laptop.png`;
+  its `renderCalendar` is the draft to build from). Each week gets a small heading ("This week · 5 Oct – 11 Oct", "Next
+  week · …", later "Week of 19 Oct") and its own "N open" box. Open questions put to the user: arrows step 2 weeks
+  (recommended) or 1; keep the headings; the calendar is about twice as tall on phones; demo videos would still show one
+  week (re-record or not). Estimate to build: 15,000-25,000 tokens without videos (low-moderate confidence).
+- **2026-10-08: live sheet checked (user sent a copy, kept out of the repository; phone numbers not copied anywhere).**
+  Program plan titles = the script's titles exactly (nothing to change). Slots tab = the older sample's (Start, End,
+  Centre, Contact, Places; no Principal Contact): cause of no principal on any card, and of every booked date being
+  flagged 'Principal Contact is ""' in the Update report. **Fixed in followup-2026-10-08.7 (commit 40dbd2a):** the
+  generator ("Update slots now" and the Sunday run) first brings both tabs' titles up to date (`upgradeColumns_`): older
+  titles renamed, a missing optional column inserted after its neighbour (format set, drop-down cleared or set), then
+  the added Slots details columns (Institution Name, Address, Map, Principal/Sahaji Contact) are filled in from the plan
+  for today and later dates (booked ones too; past dates left as a record). The pop-up and the Update report say what
+  changed. Required columns are never added (a missing one is still a clear error). Also: volunteers' names and numbers
+  bold, "(via …)" grey, as on the tour page. Tests: server tests find columns by title now (old-title sheets get
+  renamed); new test 11 reproduces the live sheet (checked to fail with the fix off). 93 tests pass.
+  Still for the user: booked dates of P1 (10/17/24/31 Oct) and P3 (12 Oct) keep their old Sahaji Contact (Lakshmi /
+  Suresh; plan says Padma), by the agreed rule that booked dates are never changed automatically: change by hand if
+  Padma is right. Asked whether contact-only changes should update booked dates automatically (not built).
 - **2026-10-08: Follow-up page: call buttons and Details like the tour page (version followup-2026-10-08.6, commit 464fdb3).**
   User (first real set-up): no Details button and volunteers' numbers not turned into call buttons. Phones (700 pixels
   or less): each volunteer's number is now a round call button (same code as tour v2026-10-07.1: `PHONE_ICON`, `telOf`,

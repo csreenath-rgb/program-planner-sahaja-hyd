@@ -20,8 +20,8 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
 | Live names (user, 2026-10-08) | Google Sheet **"HYD-SY Follow-up Programs"**, its Apps Script project **"Follow-ups Planner"** (used in the setup guide and the organiser video). |
 | Repository (since 2026-10-08) | **`csreenath-rgb/program-planner-sahaja-hyd`, branch `main`** - the user's own repository for this work; work and push here. The old branch `claude/vibrant-planck-gsxjay` in `MamtaMukeshK/task-self-assign-sahaja-hyd` is only a backup copy (never merged into that repository's main, at the user's wish). |
 | Branch (before 2026-10-08) | `claude/vibrant-planck-gsxjay`, pushed, up to date. No pull request (the user has not asked for one). |
-| Follow-up page, 2026-10-08 evening | Version followup-2026-10-08.6 (commit 464fdb3): call buttons and Details (Principal + Sahaji contact) like the tour page. **Waiting on the user:** paste followup/Index.html + Code.gs, New version; send the live Slots title row + a phone screenshot (likely cause of missing details: Slots tab from the old sample has no "Principal Contact"). History check: nothing missing from the fork. |
-| Tests | `cd test && npm install && npm test`: 92 tests (2026-10-08 evening); earlier: 90 tests (77 tour page + 10 Follow-up server + 3 Follow-up page/guide), passing on 2026-10-08. (The tour "demo video button" test was intermittent in full runs; fixed 2026-10-08, 10 full runs in a row passed.) |
+| Follow-up page, 2026-10-08 evening | Version **followup-2026-10-08.7** (commit 40dbd2a): call buttons, Details (Principal + Sahaji contact), bold names like the tour page; "Update slots now" brings the live Slots tab's old titles up to date and adds + fills Principal Contact. **Waiting on the user:** paste followup/Code.gs + Index.html, New version, run Program -> Update slots now, check a card on a phone. **Mock-up waiting for a go:** second calendar week (`docs/followup/mockup-two-weeks/`, questions in HANDOFF). History check: nothing missing from the fork. |
+| Tests | `cd test && npm install && npm test`: 93 tests (2026-10-08 evening); earlier: 90 tests (77 tour page + 10 Follow-up server + 3 Follow-up page/guide), passing on 2026-10-08. (The tour "demo video button" test was intermittent in full runs; fixed 2026-10-08, 10 full runs in a row passed.) |
 
 ## 2. Waiting on the user (do not build past these without an answer)
 1. ~~Confirm the 5 stage-1 assumptions~~ **All 5 confirmed by the user 2026-10-08** (details in `docs/followup/STAGE1_PLAN.md`):
@@ -92,6 +92,10 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
   `deleteRow`, `insertRowsAfter`/`getMaxRows`, `Range.sort`, `setFrozenRows`, `setFontWeight`, `setNotes`.
 
 ## 5. Learnings (add new ones; keep old ones)
+- 2026-10-08: **Tests that build old-title sheets must find columns by title** once the generator renames titles
+  (`S()` in `test/followup.test.js` reads the live header row). Fixed positions broke 6 tests at once.
+- 2026-10-08: **When the user's sheet shows less than expected, ask for the live file (or its title rows) first**: the
+  Update report in it told the whole story (each booked date flagged 'Principal Contact is ""').
 - 2026-10-08: **A cloud session's clone can be shallow** (`git rev-parse --is-shallow-repository` = true): branch roots
   and "no common ancestor" results are then false alarms. Run `git fetch --unshallow` before comparing histories.
 - 2026-10-08: **The Follow-up page is not a copy of the tour page.** A feature added to the tour `Index.html` (call
