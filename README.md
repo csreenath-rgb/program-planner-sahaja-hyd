@@ -1,3 +1,8 @@
+> **Two apps live in this repository.** For the **Follow-up Program** sheet ("HYD-SY Follow-up Programs", Apps Script
+> "Follow-ups Planner") paste **`followup/Code.gs`** and **`followup/Index.html`** - setup guide: `followup/SETUP_GUIDE.html`.
+> The `Code.gs` and `Index.html` at the top of the repository are the **tour page's** (Self Realization Tour); the rest of
+> this README is about the tour page.
+
 # Speaker Self-Assign page — setup guide
 
 A one-page website where volunteers pick a **date** (today or later) and then schools from **that day's tab** of the
