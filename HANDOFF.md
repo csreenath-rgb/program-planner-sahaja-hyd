@@ -336,6 +336,15 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: calendar starts today and shows 7 days (user: "start the days in the calendar view from today and show
+  the next 7 days instead of adding another week"; "no need of mockup ... go ahead").** `followup/Index.html`: the
+  calendar's first day is today (was Monday of this week), so no greyed past days; the 8th box "These 7 days: N open"
+  (en/te/hi: "These 7 days" / "ఈ 7 రోజుల్లో" / "इन 7 दिनों में" - native check wanted); ‹ › move 7 days (labels "Previous/
+  Next 7 days" in en/te/hi); ‹ disabled on the first 7 days. `monday()` removed (no longer used). VERSION
+  followup-2026-10-08.8. SPEC.md row 1 notes the change. Page tests updated (Wed 7 Oct: Today..Tue 13, total 8, no past
+  box, ‹ enabled after ›). 93 tests pass; phone screenshot checked. The two-week mock-up
+  (`docs/followup/mockup-two-weeks/`) is dropped (kept for the record). The demo videos still show the old Monday-start
+  week, and `tools/record_followup_demo.js` taps `[data-date="2026-10-17"]` after ‹ ›: check it before re-recording.
 - **2026-10-08: user: the Follow-up page's demo button plays the TOUR videos.** Checked every version of
   `followup/Index.html`: it has only ever pointed at the Follow-up videos (Drive en 1XshvyqAgaCgKGTKlMG_DQt3YVApHH7Gi,
   te 12YBe_afPiP3vGaH2egcwJ3J7hp9M1bxu, hi 1bkxi19Gq8C4MmXqxVxn8To653AQxBoLH, the user's links; GitHub copies of

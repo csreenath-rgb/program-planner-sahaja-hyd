@@ -36,16 +36,17 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
     await p.route('http://app.test/', r => r.fulfill({ contentType: 'text/html', body: gs.doGet().getContent() }));
     await p.goto('http://app.test/');
 
-    // One week: Mon-Thu, then Fri-Sun + the week's total; today is Wednesday; past days are greyed and can't be tapped.
+    // 7 days from today (user, 2026-10-08): today is Wednesday, so Wed-Sat, then Sun-Tue + the 7 days' total; no past days.
     const boxes = await p.locator('#calGrid .dbox').allInnerTexts();
     assert.equal(boxes.length, 8);
-    assert.match(boxes[0], /^Mon\n5Oct\npast$/);
-    assert.match(boxes[2], /^Today\n7\n1 open$/);
-    assert.match(boxes[5], /^Sat\n10\n2 open$/, 'Saturday: the daily and the weekly session both have places');
-    assert.match(boxes[7], /^This week\n6\nopen$/, "5 daily (Wed-Sun) + 1 Saturday");
+    assert.match(boxes[0], /^Today\n7Oct\n1 open$/);
+    assert.match(boxes[3], /^Sat\n10\n2 open$/, 'Saturday: the daily and the weekly session both have places');
+    assert.match(boxes[6], /^Tue\n13\n1 open$/);
+    assert.match(boxes[7], /^These 7 days\n8\nopen$/, "7 daily (Wed-Tue) + 1 Saturday");
+    assert.equal(await p.locator('#calGrid .dbox.past').count(), 0);
     assert.equal(await p.locator('#calMonth').textContent(), 'October 2026');
     assert.equal(await p.textContent('#demoBtn'), '▶ Watch the demo', 'demo button shown now that the videos exist (stage 4a)');
-    assert.ok(await p.locator('#prevWeek').isDisabled(), 'no going back before this week');
+    assert.ok(await p.locator('#prevWeek').isDisabled(), 'no going back before today');
     assert.equal(await p.locator('.dayhead').count(), 14, 'the next 2 weeks are listed');
     assert.match(await p.locator('article[data-id="P1-20261010"]').innerText(), /6:30 PM – 7:30 PM\n1 of 2 left\nAmeerpet · Road 3\nOpen map\nGita/);
 
@@ -78,7 +79,7 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
     await p.waitForSelector('#note:has-text("Registered: 4 booking(s).")');
     assert.equal(row('P1-20261017')[SH.indexOf('Volunteers')], 'Asha 9876543210');
     await p.waitForSelector('article[data-id="P1-20261010"] button[data-release]');
-    assert.match(await p.locator('#calGrid .dbox').nth(5).innerText(), /● You/);
+    assert.match(await p.locator('#calGrid .dbox').nth(3).innerText(), /● You/);
 
     // Release one date; the others stay booked.
     await p.click('article[data-id="P1-20261017"] button[data-release]');
@@ -98,7 +99,8 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
 
     // Next week and "Show 2 more weeks" load more dates; no sideways scrolling on a phone or a laptop.
     await p.click('#nextWeek');
-    await p.waitForFunction(() => document.getElementById('calRange').textContent === '12 Oct – 18 Oct');
+    await p.waitForFunction(() => document.getElementById('calRange').textContent === '14 Oct – 20 Oct');
+    assert.equal(await p.locator('#prevWeek').isDisabled(), false);
     await p.click('#more');
     await p.waitForSelector('#d-2026-10-31');
     for (const width of [320, 390, 1280]) {
@@ -195,7 +197,8 @@ test('follow-up page: register others, ✕ and Release all, My registrations, ca
     // Telugu, then Hindi with a translated server message (too many bookings: me + 4 typed + the 2 still-ticked speakers = 7 people x 24 daily dates).
     await p.selectOption('#lang', 'te');
     assert.equal(await p.textContent('#brand h1'), 'ఫాలో-అప్ ప్రోగ్రామ్');
-    assert.match(await p.locator('#calGrid .dbox').nth(2).innerText(), /^ఈరోజు\n7\n/);
+    assert.match(await p.locator('#calGrid .dbox').nth(0).innerText(), /^ఈరోజు\n7/);
+    assert.match(await p.locator('#calGrid .dbox').nth(7).innerText(), /^ఈ 7 రోజుల్లో\n/);
     assert.match(await p.textContent('#alerts'), /^⚠ రద్దు చేశారు: శని 24 అక్టో, 6:30 PM, Ameerpet\./);
     await p.selectOption('#lang', 'hi');
     await p.click('article[data-id="P2-20261008"] button[data-sel]');
