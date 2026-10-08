@@ -20,7 +20,7 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
 | Live names (user, 2026-10-08) | Google Sheet **"HYD-SY Follow-up Programs"**, its Apps Script project **"Follow-ups Planner"** (used in the setup guide and the organiser video). |
 | Repository (since 2026-10-08) | **`csreenath-rgb/program-planner-sahaja-hyd`, branch `main`** - the user's own repository for this work; work and push here. The old branch `claude/vibrant-planck-gsxjay` in `MamtaMukeshK/task-self-assign-sahaja-hyd` is only a backup copy (never merged into that repository's main, at the user's wish). |
 | Branch (before 2026-10-08) | `claude/vibrant-planck-gsxjay`, pushed, up to date. No pull request (the user has not asked for one). |
-| Follow-up page, 2026-10-08 evening | Version **followup-2026-10-08.8** (7.: commit 40dbd2a): call buttons, Details (Principal + Sahaji contact), bold names like the tour page; "Update slots now" brings the live Slots tab's old titles up to date and adds + fills Principal Contact. **Waiting on the user:** paste followup/Code.gs + Index.html, New version, run Program -> Update slots now, check a card on a phone. **Version followup-2026-10-08.8:** the calendar starts today and shows 7 days (user chose this instead of a second week). Still open: the user re-uploads the Follow-up videos to their 3 Drive files (they hold the tour videos); whether contact-only changes should update booked dates. History check: nothing missing from the fork. |
+| Follow-up page, 2026-10-08 evening | Version **followup-2026-10-08.9** (7.: commit 40dbd2a): call buttons, Details (Principal + Sahaji contact), bold names like the tour page; "Update slots now" brings the live Slots tab's old titles up to date and adds + fills Principal Contact. **Waiting on the user:** paste followup/Code.gs + Index.html, New version, run Program -> Update slots now, check a card on a phone. **Version followup-2026-10-08.9:** calendar from today (7 days; 2 rows of 7 on computers), dates side by side on computers, plain-text contacts on computers, booked dates take contact changes (one-time catch-up for the live sheet), no ✕ without a name. The user replaced the 3 Follow-up Drive videos (2026-10-08). Waiting: the user deploys .9 and runs Update slots now. History check: nothing missing from the fork. |
 | Tests | `cd test && npm install && npm test`: 93 tests (2026-10-08 evening); earlier: 90 tests (77 tour page + 10 Follow-up server + 3 Follow-up page/guide), passing on 2026-10-08. (The tour "demo video button" test was intermittent in full runs; fixed 2026-10-08, 10 full runs in a row passed.) |
 
 ## 2. Waiting on the user (do not build past these without an answer)
@@ -92,6 +92,13 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
   `deleteRow`, `insertRowsAfter`/`getMaxRows`, `Range.sort`, `setFrozenRows`, `setFontWeight`, `setNotes`.
 
 ## 5. Learnings (add new ones; keep old ones)
+- 2026-10-08: **Check a fix's new test against the old code by reverting only the code file**, not with `git stash`
+  (that also reverts the test, so the check proves nothing).
+- 2026-10-08: **Compare with the viewer's name only when one is typed**: `norm('') === norm(p.by)` matched everyone who
+  signed themselves up. A screenshot with an empty name caught it.
+- 2026-10-08: **Changing what the generator does for already-saved lines needs a catch-up**: the stored line fingerprint
+  decides whether a line is re-checked, so a new rule does not reach old rows until the line changes. A version mark in
+  the fingerprint ("2|") gives one controlled pass.
 - 2026-10-08: **Two sets of demo videos share the same file names** (`docs/demo*.mp4` tour, `docs/followup/demo*.mp4`
   Follow-up), so uploads to Drive get swapped easily. When giving the user files to upload, name the exact folder and
   say what the first frame shows. Google Drive is not reachable from the cloud session (403), so the user must check it.

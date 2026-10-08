@@ -336,6 +336,24 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: computer layout, contacts, booked-date contacts (version followup-2026-10-08.9).** User: on a computer the
+  Details contact links do nothing; the screen looks half empty; the calendar should show all 7 days in a row and 2 weeks
+  in 2 rows. Also: the three Follow-up Drive videos are now replaced by the user (Follow-up demo button fixed on their
+  side), and "change to contact details only should update dates people have already booked".
+  Page (`followup/Index.html`): wider than 700 px, tel: links in cards are plain text (`pointer-events:none`; phones keep
+  tap-to-call; this also covers "Please call ..." when release is closed). 1024 px and wider ("computer"): `#list` is a
+  grid of date blocks (`<section class="day">` = heading + its cards, cards stacked), 340 px minimum, so dates sit side by
+  side across the screen; the calendar uses 8 columns: two rows of 7 days + a total ("These 7 days" / "Next 7 days",
+  te/hi added); the arrows move what is shown (14 days on a computer, 7 elsewhere; `calDays()`), never before today;
+  re-drawn when the screen crosses 1024 px. Arrow labels now "Earlier dates" / "Later dates" (en/te/hi).
+  Bug fixed (mine, stage 2b): with no name typed, cards showed ✕ and "Release all N" on everyone who signed themselves up
+  (`norm('') === ''`); display only, the server refuses releases without a name. Now nobody is "yours" without a name.
+  Server (`followup/Code.gs`): booked dates take plan changes to Principal / Sahaji Contact (`CONTACT_KEYS`); time,
+  place and numbers still wait and are listed ("so only its contact details were updated (...)"). Line fingerprints
+  now start with "2|"; a line saved in the older form whose plan line is unchanged gets a one-time catch-up that updates
+  only booked dates' contacts (the live sheet's 5 booked dates still showing Lakshmi/Suresh). 94 tests (new: contact rule,
+  catch-up; computer layout and no-name checks in the page test; each checked to fail without its fix). Computer
+  screenshot checked (1440 px: 4 date columns, 2 calendar rows, plain-text contacts).
 - **2026-10-08: calendar starts today and shows 7 days (user: "start the days in the calendar view from today and show
   the next 7 days instead of adding another week"; "no need of mockup ... go ahead").** `followup/Index.html`: the
   calendar's first day is today (was Monday of this week), so no greyed past days; the 8th box "These 7 days: N open"

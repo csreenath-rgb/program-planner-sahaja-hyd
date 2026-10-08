@@ -7,7 +7,7 @@
  * Design: docs/followup/SPEC.md and docs/followup/STAGE1_PLAN.md.
  */
 
-var VERSION = 'followup-2026-10-08.8';
+var VERSION = 'followup-2026-10-08.9';
 
 /** Serves the page with the first weeks' dates already inside, so it shows without a second trip to the server. */
 function doGet() {
@@ -78,6 +78,8 @@ var COL_ALIASES = { day: ['day'], start: ['start'], end: ['end'], centre: ['cent
 // Columns the script cannot work without: never added by the script; a missing one is a clear error.
 var PLAN_REQUIRED = ['line', 'day', 'start', 'freq', 'from'];
 var SLOT_REQUIRED = ['id', 'date', 'start', 'places', 'status', 'volunteers'];
+// Plan changes to these reach dates that already have volunteers too (user, 2026-10-08).
+var CONTACT_KEYS = ['principal', 'contact'];
 
 // ---------------------------------------------------------------- sheet menu, setup, triggers
 
@@ -247,23 +249,30 @@ function generateSlots() {
 
     var byLine = {};
     slots.rows.forEach(function (r) { if (r.line) (byLine[r.line] = byLine[r.line] || []).push(r); });
-    var updates = [], deletes = [], fresh = [];
+    var updates = [], deletes = [], fresh = [], contacts = [];
     var handle = function (lineId, line, label) {
       var want = {};
       if (line) planDates_(line, today).forEach(function (d) { want[d] = true; });
-      var hash = line ? lineHash_(line) : '';
-      var changed = !line || props.getProperty('line:' + lineId) !== hash;
+      var hash = line ? lineHash_(line) : '', was = props.getProperty('line:' + lineId);
+      var changed = !line || was !== hash;
+      // Saved before booked dates took new contact details and the line is the same: only those contacts are brought up to date, once.
+      var catchUp = changed && line && was === lineHash_(line, true);
       var have = {};
       (byLine[lineId] || []).forEach(function (r) {
         have[r.date] = true;
         if (!changed || r.date < today) return;
         var diff = line && want[r.date] ? differences_(r, line) : [];
-        if (r.people.length) {
-          if (!want[r.date]) notes.push(label + ', ' + longDate_(r.date) + ': ' + r.people.length + ' volunteer(s) on it, so it was kept. ' +
-            'The plan no longer has this date: set Status to Cancelled, or keep it.');
-          else if (diff.length) notes.push(label + ', ' + longDate_(r.date) + ': ' + r.people.length + ' volunteer(s) on it, so it was not changed (' +
-            diff.join('; ') + '). Change it by hand if they agree.');
-        } else if (!want[r.date]) deletes.push(r.row);
+        if (r.people.length && want[r.date]) {
+          // Booked: new contact details go through (user, 2026-10-08); time, place and numbers wait for the organiser.
+          var keys = CONTACT_KEYS.filter(function (k) { return c[k] && String(r[k]) !== String(line[k]); });
+          if (keys.length) contacts.push({ row: r.row, line: line, keys: keys });
+          diff = differences_(r, line, CONTACT_KEYS);
+          if (diff.length && !catchUp) notes.push(label + ', ' + longDate_(r.date) + ': ' + r.people.length + ' volunteer(s) on it, so ' +
+            (keys.length ? 'only its contact details were updated' : 'it was not changed') + ' (' + diff.join('; ') + '). Change it by hand if they agree.');
+        } else if (catchUp) return;
+        else if (r.people.length) notes.push(label + ', ' + longDate_(r.date) + ': ' + r.people.length + ' volunteer(s) on it, so it was kept. ' +
+          'The plan no longer has this date: set Status to Cancelled, or keep it.');
+        else if (!want[r.date]) deletes.push(r.row);
         else if (diff.length) updates.push({ row: r, line: line });
       });
       if (line) Object.keys(want).sort().forEach(function (d) { if (!have[d]) fresh.push(newSlot_(line, d)); });
@@ -282,6 +291,10 @@ function generateSlots() {
       ['centre', 'address', 'map', 'principal', 'contact'].forEach(function (k) { if (c[k]) writeText_(sheet, r, c[k], l[k]); });
       sheet.getRange(r, c.places).setValue(l.places);
       setRemaining_(sheet, r, c, l.places);
+      updated++;
+    });
+    contacts.forEach(function (u) {
+      u.keys.forEach(function (k) { writeText_(sheet, u.row, c[k], u.line[k]); });
       updated++;
     });
     deletes.sort(function (a, b) { return b - a; }).forEach(function (r) { sheet.deleteRow(r); removed++; });
@@ -432,8 +445,9 @@ function list_(title, text, what) {
   return title + ' has more than one value ("' + text + '"). Please use one line per ' + what + ' (copy the line, clear its Line ID, change the ' + what + ').';
 }
 
-function lineHash_(l) {
-  return [l.freq, l.weekday, l.week || '', l.dom || '', l.start, l.end, l.from, l.until, l.centre, l.address, l.map, l.principal, l.contact, l.places].join('|');
+// "2|" marks lines saved since booked dates take new contact details (2026-10-08); before = the older form.
+function lineHash_(l, before) {
+  return (before ? '' : '2|') + [l.freq, l.weekday, l.week || '', l.dom || '', l.start, l.end, l.from, l.until, l.centre, l.address, l.map, l.principal, l.contact, l.places].join('|');
 }
 
 function newSlot_(line, date) {
@@ -443,9 +457,10 @@ function newSlot_(line, date) {
 }
 
 /** What differs between a Slots row and its plan line, in words. */
-function differences_(r, l) {
+function differences_(r, l, skip) {
   var out = [];
   ['start', 'end', 'centre', 'address', 'map', 'principal', 'contact', 'places'].forEach(function (k) {
+    if (skip && skip.indexOf(k) >= 0) return;
     var title = SLOT_COLS.filter(function (c) { return c[0] === k; })[0][1];
     if (String(r[k]) !== String(l[k])) out.push(title + ' is "' + r[k] + '", plan says "' + l[k] + '"');
   });

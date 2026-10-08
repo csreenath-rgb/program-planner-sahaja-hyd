@@ -8,14 +8,16 @@ const SH = ['Slot ID', 'Date', 'Day', 'Start', 'End', 'Centre', 'Address', 'Map'
   'Still needed', 'Cancellation notice sent', 'Notes'];
 // Column of a Slots title in the latest setup()'s sheet. Since 2026-10-08 the generator renames these older titles
 // (and adds "Principal Contact" after "Map"), so positions are looked up, not fixed.
-const NEW = { Start: 'Start Time', End: 'End Time', Centre: 'Institution Name', Places: 'Volunteers Needed', Contact: 'Sahaji Contact' };
-let cur = null;
-const S = h => { const g = cur ? cur.grid[0] : SH; return g.indexOf(h) >= 0 ? g.indexOf(h) : g.indexOf(NEW[h]); };
+const NEW = { Day: 'Day of the Week', Start: 'Start Time', End: 'End Time', Centre: 'Institution Name', Places: 'Volunteers Needed', Contact: 'Sahaji Contact' };
+let cur = null, curPlan = null;
+const col = (g, h) => g.indexOf(h) >= 0 ? g.indexOf(h) : g.indexOf(NEW[h]);
+const S = h => col(cur ? cur.grid[0] : SH, h);
+const P = h => col(curPlan ? curPlan.grid[0] : PH, h);   // the same for the plan (it gains "Principal Contact" after "Until")
 // The titles the template creates since 2026-10-08 (the older ones above still work; most tests use them).
 const P2 = ['Line ID', 'Day of the Week', 'Start Time', 'End Time', 'Frequency', 'Week of month', 'Day of month', 'Institution Name', 'Address', 'Google map', 'Volunteers Needed', 'From', 'Until', 'Principal Contact', 'Sahaji Contact', 'Notes'];
 const S2 = ['Slot ID', 'Date', 'Day', 'Start Time', 'End Time', 'Institution Name', 'Address', 'Map', 'Principal Contact', 'Sahaji Contact', 'Volunteers Needed', 'Status', 'Volunteers', 'Still needed', 'Cancellation notice sent', 'Notes'];
 function setup(lines, now) {
-  const plan = makeSheet('Program plan', 1, [PH, ...lines.map(o => PH.map(h => o[h] == null ? '' : o[h]))]);
+  const plan = curPlan = makeSheet('Program plan', 1, [PH, ...lines.map(o => PH.map(h => o[h] == null ? '' : o[h]))]);
   const slots = cur = makeSheet('Slots', 2, [SH]);
   const gs = load([plan, slots], now || NOW, 'followup/Code.gs');
   return { gs, plan, slots, row: id => slots.grid.find(r => r[0] === id), dates: p => slots.grid.filter(r => String(r[0]).startsWith(p + '-')).map(r => r[1]) };
@@ -70,9 +72,13 @@ test('generator: a changed line updates only empty future dates; booked dates ar
   t.gs.registerSlots(['P1-20261017'], 1, 'Asha', '9876543210');
   t.plan.grid[1][PH.indexOf('Start')] = '7:00 PM';
   t.plan.grid[1][PH.indexOf('Until')] = '2026-10-24';
+  t.plan.grid[1][P('Contact')] = 'Padma 9000000010';
   const r = t.gs.generateSlots();
   assert.deepEqual(t.dates('P1'), ['2026-10-10', '2026-10-17', '2026-10-24'], '31 Oct removed (nobody on it)');
   assert.equal(t.row('P1-20261010')[S('Start')], '19:00');
+  assert.deepEqual([t.row('P1-20261017')[S('Start')], t.row('P1-20261017')[S('Contact')]], ['18:30', 'Padma 9000000010'],
+    'booked date: the new contact goes through (user, 2026-10-08), the new time waits');
+  assert.match(r.notes.join('\n'), /Sat 17 Oct 2026: 1 volunteer\(s\) on it, so only its contact details were updated \(Start Time is "18:30", plan says "19:00"\)/);
   assert.equal(r.notes.filter(n => /Day of the Week must be one weekday/.test(n)).length, 1, 'bad line reported');
   assert.equal(t.plan.grid[2][0], '', 'bad line gets no ID');
 });
@@ -248,4 +254,23 @@ test('live sheet 2026-10-08: old Slots titles are renamed, Principal Contact is 
   assert.deepEqual(r.notes, [], 'booked dates are not flagged for a missing Principal Contact');
   assert.equal(gs.getSlots('2026-10-17', '2026-10-17', 'Asha').slots[0].principal, 'Mr Rao 9000000007');
   assert.equal(gs.generateSlots().summary, 'Slots updated: 0 added, 0 changed, 0 removed.', 'second run changes nothing');
+});
+
+test('booked dates saved before 2026-10-08.9 get the plan\'s contact details once; nothing else is touched', () => {
+  const t = setup([weekly]);
+  t.gs.generateSlots();
+  t.gs.registerSlots(['P1-20261017'], 1, 'Asha', '9876543210');
+  t.plan.grid[1][P('Contact')] = 'Padma 9000000010';
+  t.gs.generateSlots();
+  // As the live sheet was left by the older version: the booked date kept the old contact; the line saved in the older form.
+  t.row('P1-20261017')[S('Contact')] = 'Lakshmi 9000000009';
+  t.row('P1-20261024')[S('Start')] = '20:00';                     // an organiser's change to an empty date
+  const pr = t.gs.PropertiesService.getScriptProperties();
+  assert.match(pr.getProperty('line:P1'), /^2\|/);
+  pr.setProperty('line:P1', pr.getProperty('line:P1').slice(2));
+  const r = t.gs.generateSlots();
+  assert.equal(t.row('P1-20261017')[S('Contact')], 'Padma 9000000010');
+  assert.equal(t.row('P1-20261024')[S('Start')], '20:00', 'empty dates left alone');
+  assert.deepEqual([r.summary, r.notes], ['Slots updated: 0 added, 1 changed, 0 removed.', []]);
+  assert.equal(t.gs.generateSlots().summary, 'Slots updated: 0 added, 0 changed, 0 removed.', 'only once');
 });

@@ -52,6 +52,8 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
 
     // Principal contact behind "Details" on a phone (as on the tour page); tap to open, tap the number to call.
     const card10 = p.locator('article[data-id="P1-20261010"]');
+    assert.deepEqual([await card10.locator('button.x').count(), await card10.locator('button[data-group]').count()], [0, 0],
+      'no name typed yet: no ✕ and no Release all on people who signed themselves up');
     assert.equal(await card10.locator('.more').isVisible(), false);
     await card10.locator('button[data-dtl]').click();
     assert.equal(await card10.locator('.more').innerText(), 'Principal: Mr Rao 9000000007\nSahaji contact: Lakshmi 9000000009', 'both contacts');
@@ -107,7 +109,22 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
       await p.setViewportSize({ width, height: 800 });
       assert.ok(await p.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'no sideways scroll at ' + width);
     }
-    assert.equal(await p.evaluate(() => getComputedStyle(document.querySelector('.cards')).gridTemplateColumns.split(' ').length), 3, 'three columns on a laptop');
+    // Computer (user, 2026-10-08): dates side by side across the screen; calendar 2 rows of 7 days + total; arrows move 2 weeks.
+    assert.equal(await p.evaluate(() => getComputedStyle(document.getElementById('list')).gridTemplateColumns.split(' ').length), 3, 'three dates side by side on a laptop');
+    assert.deepEqual(await p.evaluate(() => [...document.querySelectorAll('#list .day')].slice(0, 3).map(d => d.getBoundingClientRect().top))
+      .then(t => new Set(t).size), 1, 'the first three dates start on one line');
+    await p.waitForFunction(() => document.getElementById('calRange').textContent === '14 Oct – 27 Oct');
+    assert.equal(await p.evaluate(() => getComputedStyle(document.getElementById('calGrid')).gridTemplateColumns.split(' ').length), 8);
+    const wide = await p.locator('#calGrid .dbox').allInnerTexts();
+    assert.equal(wide.length, 16, '14 days + 2 totals');
+    assert.match(wide[7], /^These 7 days\n/); assert.match(wide[15], /^Next 7 days\n/); assert.match(wide[8], /^Wed\n21Oct\n/);
+    await p.click('#nextWeek');
+    await p.waitForFunction(() => document.getElementById('calRange').textContent === '28 Oct – 10 Nov');
+    await p.click('#prevWeek'); await p.click('#prevWeek');
+    await p.waitForFunction(() => document.getElementById('calRange').textContent === '7 Oct – 20 Oct');
+    assert.ok(await p.locator('#prevWeek').isDisabled(), 'never before today');
+    assert.deepEqual(await p.locator('article[data-id="P1-20261031"] .more a').evaluateAll(as => as.map(a => getComputedStyle(a).pointerEvents)),
+      ['none', 'none'], 'laptop: contact numbers are plain text (calling works on phones only)');
     assert.ok(await p.locator('article[data-id="P1-20261031"] .more').isVisible(), 'laptop: contacts shown without Details');
     assert.equal(await p.locator('article[data-id="P1-20261031"] button[data-dtl]').isVisible(), false);
     assert.deepEqual([await p.locator('article[data-id="P1-20261031"] li a.call').first().isVisible(),
