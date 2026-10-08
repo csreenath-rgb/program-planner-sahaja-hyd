@@ -20,7 +20,8 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
 | Live names (user, 2026-10-08) | Google Sheet **"HYD-SY Follow-up Programs"**, its Apps Script project **"Follow-ups Planner"** (used in the setup guide and the organiser video). |
 | Repository (since 2026-10-08) | **`csreenath-rgb/program-planner-sahaja-hyd`, branch `main`** - the user's own repository for this work; work and push here. The old branch `claude/vibrant-planck-gsxjay` in `MamtaMukeshK/task-self-assign-sahaja-hyd` is only a backup copy (never merged into that repository's main, at the user's wish). |
 | Branch (before 2026-10-08) | `claude/vibrant-planck-gsxjay`, pushed, up to date. No pull request (the user has not asked for one). |
-| Tests | `cd test && npm install && npm test`: 90 tests (77 tour page + 10 Follow-up server + 3 Follow-up page/guide), passing on 2026-10-08. (The tour "demo video button" test was intermittent in full runs; fixed 2026-10-08, 10 full runs in a row passed.) |
+| Follow-up page, 2026-10-08 evening | Version followup-2026-10-08.6 (commit 464fdb3): call buttons and Details (Principal + Sahaji contact) like the tour page. **Waiting on the user:** paste followup/Index.html + Code.gs, New version; send the live Slots title row + a phone screenshot (likely cause of missing details: Slots tab from the old sample has no "Principal Contact"). History check: nothing missing from the fork. |
+| Tests | `cd test && npm install && npm test`: 92 tests (2026-10-08 evening); earlier: 90 tests (77 tour page + 10 Follow-up server + 3 Follow-up page/guide), passing on 2026-10-08. (The tour "demo video button" test was intermittent in full runs; fixed 2026-10-08, 10 full runs in a row passed.) |
 
 ## 2. Waiting on the user (do not build past these without an answer)
 1. ~~Confirm the 5 stage-1 assumptions~~ **All 5 confirmed by the user 2026-10-08** (details in `docs/followup/STAGE1_PLAN.md`):
@@ -91,6 +92,13 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
   `deleteRow`, `insertRowsAfter`/`getMaxRows`, `Range.sort`, `setFrozenRows`, `setFontWeight`, `setNotes`.
 
 ## 5. Learnings (add new ones; keep old ones)
+- 2026-10-08: **A cloud session's clone can be shallow** (`git rev-parse --is-shallow-repository` = true): branch roots
+  and "no common ancestor" results are then false alarms. Run `git fetch --unshallow` before comparing histories.
+- 2026-10-08: **The Follow-up page is not a copy of the tour page.** A feature added to the tour `Index.html` (call
+  buttons, Details) does not reach `followup/Index.html` by merging; carry it over by hand and test both pages.
+- 2026-10-08: **Optional columns are matched by title and skipped silently when missing** (`readTable_`). A sheet made
+  from an older sample (Slots titled Start/End/Centre/Contact/Places, no Principal Contact) loses those details on
+  every card with no error. Ask for the live sheet's title rows when the page shows less than expected.
 **Working with this user**
 - Plain language, no unexplained abbreviations, state confidence, small changes, commit and push as you go.
 - Budget: 100,000 tokens per stage. Tell the user and get approval before going over (done this session with a

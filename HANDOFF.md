@@ -336,6 +336,30 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: Follow-up page: call buttons and Details like the tour page (version followup-2026-10-08.6, commit 464fdb3).**
+  User (first real set-up): no Details button and volunteers' numbers not turned into call buttons. Phones (700 pixels
+  or less): each volunteer's number is now a round call button (same code as tour v2026-10-07.1: `PHONE_ICON`, `telOf`,
+  +91, `target="_top"`, label "Call <name>" in en/te/hi); tablets and laptops show the number. Details now holds the
+  Principal contact AND the Sahaji contact (new label "Sahaji contact:" in en/te/hi - Telugu/Hindi need a native check);
+  the Details button shows on phones when either is set; on tablets and laptops Details shows without a button (same as
+  the tour). Tap-to-call links in Details and "release closed" now open from Google's frame (`target="_top"`). 92 tests.
+- **2026-10-08: history check (user asked whether the fork lost versions).** Result: **nothing is missing.** With full
+  history fetched, every commit of every branch in `MamtaMukeshK/task-self-assign-sahaja-hyd` (main,
+  claude/vibrant-planck-gsxjay, claude/zealous-johnson-h19h6w, claude/optimistic-ritchie-os2avr) is inside the fork's
+  `main` (0 missing each). The tour's `Code.gs`/`Index.html` differ from the original main only by the intended
+  VERSION 2026-10-08.1 and the re-pinned backup video links. Why the Follow-up page lacked call buttons: it is a separate
+  page, written new on 2026-10-08 02:23-02:49 on vibrant-planck-gsxjay; the tour call buttons were built 2026-10-07 on
+  zealous-johnson (another branch) and reached the working branch only by the merge at 12:31 (cf1f595), which changes the
+  tour files only. Nobody carried the feature over - a gap in the build, not in the fork.
+  **Likely cause of missing card details (not yet confirmed with the user):** the sample the user uploaded
+  (86706942-sample-followup-sheet.xlsx) has a Slots tab with the OLD titles (Start, End, Centre, Contact, Places) and NO
+  "Principal Contact" column. The script matches Slots columns by title; optional ones it cannot find are skipped
+  silently (`readTable_` only errors for required ones), and "Set up the sheet" never changes an existing tab. So a live
+  sheet made from that file shows no principal contacts on any card. Asked the user for the live Slots title row and a
+  phone screenshot. Proposed (not built, needs the user's go): name missing columns in "Update slots now" and the Update
+  report; fill blank info cells of future dates from the plan line. Other tour-card differences: the tour shows every
+  sheet column (extra ones behind Details, with the column title as label) and a serial number; the Follow-up card
+  shows a fixed set (time, places, institution, address, map, notes, Details, volunteers).
 - **2026-10-08: first real set-up: no "Program" menu after reload** (user). Code checked: standard onOpen, file loads
   cleanly. Guide Part 5 now has a fallback box: run setUpSheet / onOpen from the Apps Script tab, one Google account per
   window, check Executions for onOpen. **Cause found:** the user's Code.gs ended with `function cacheKey_` = the tour page's
