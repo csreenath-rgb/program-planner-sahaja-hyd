@@ -342,8 +342,7 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
 - **2026-10-08: stages 4b and 4c DONE (all of stage 4 recorded).** 4b: tour videos `docs/demo.mp4`, `demo-te.mp4`,
   `demo-hi.mp4` re-recorded with the Ongoing programs scene (step 7: pick Ongoing programs, Register, Backup; "Register
   others" unticked first so only Priya registers) on tour v2026-10-07.1; tour page's GitHub fallback copies re-pinned to
-  the fork csreenath-rgb/program-planner-sahaja-hyd (commit 012cfc6); tour VERSION 2026-10-08.1. **User: replace the three
-  tour Drive files (Manage versions) with the new videos.** 4c: `docs/followup/organiser-demo.mp4` (English, ~2 min,
+  the fork csreenath-rgb/program-planner-sahaja-hyd (commit 012cfc6); tour VERSION 2026-10-08.1. **Done by the user 2026-10-08: the three tour Drive files are replaced (Manage versions, same links).** 4c: `docs/followup/organiser-demo.mp4` (English, ~2 min,
   laptop screen drawn from the real tab layout, first caption says it is not live Google Sheets) by
   `tools/record_organiser_demo.js` (real followup/Code.gs underneath; user's sample, phone numbers replaced, P7 One-off);
   linked from `followup/SETUP_GUIDE.html`: the organiser's Drive copy (1Lv6ZFWNxIDeFo9KWArfxrzqFhxbEWhmx, sent 2026-10-08)
