@@ -336,6 +336,9 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: moved to the user's repository.** `csreenath-rgb/program-planner-sahaja-hyd` (the user turned the fork into
+  one branch, `main`, at 6ccd54f); its `main` was fast-forwarded to 28c0bc8 (stages 4b, 4c, guide links). Continue there, on
+  `main`. `MamtaMukeshK/task-self-assign-sahaja-hyd` keeps the old branch as a backup (not in that repository's main).
 - **2026-10-08: stages 4b and 4c DONE (all of stage 4 recorded).** 4b: tour videos `docs/demo.mp4`, `demo-te.mp4`,
   `demo-hi.mp4` re-recorded with the Ongoing programs scene (step 7: pick Ongoing programs, Register, Backup; "Register
   others" unticked first so only Priya registers) on tour v2026-10-07.1; tour page's GitHub fallback copies re-pinned to
