@@ -1647,7 +1647,7 @@ function norm_(s) { return String(s).toLowerCase().replace(/\s+/g, ' ').trim(); 
 <h2 id="p5"><span class="step-num">5</span>Set up the sheet and give permission (one time)</h2>
 <ol>
   <li>Go back to the <b>sheet's</b> browser tab and reload it (<kbd>F5</kbd>). After a few seconds a new menu <b>Program</b> appears
-    at the top, next to Help.</li>
+    at the top, next to Help. <b>No Program menu after 30 seconds?</b> Use the box below this list instead of the menu.</li>
   <li>Click <b>Program → Set up the sheet (first time)</b>. A box says <b>Authorization required</b>: click <b>OK</b> / <b>Review
     permissions</b> and choose your account.</li>
   <li>Google shows <b>"Google hasn't verified this app"</b>. This is normal for your own scripts, and the "developer" it names is
@@ -1657,6 +1657,17 @@ function norm_(s) { return String(s).toLowerCase().replace(/\s+/g, ' ').trim(); 
   <li>A message says <b>"Created: Program plan, Slots, Speakers. The weekly update (Sunday night) is on."</b> Three new tabs appear at the
     bottom. You can delete the empty <b>Sheet1</b> tab.</li>
 </ol>
+<div class="box warn"><b>If the Program menu does not appear</b> (found on the first real set-up, 2026-10-08):
+  <ol>
+    <li>In the Apps Script tab, check <b>Code.gs</b> has no orange dot (saved) and its last line starts with <code>function norm_</code>.</li>
+    <li>In the function drop-down next to <b>Debug</b>, choose <b>setUpSheet</b> and click <b>&#9655; Run</b>. Approve the permissions as
+      above. This does the whole set-up without the menu. Then choose <b>onOpen</b> and click <b>&#9655; Run</b>: the Program menu appears in
+      the sheet tab. From now on it appears by itself when the sheet opens.</li>
+    <li>Signed in to <b>several Google accounts</b> in this browser? Google may run the script as another account and skip the menu.
+      Open the sheet in a private (Incognito) window signed in only with the owner account.</li>
+    <li>Still nothing: Apps Script tab &rarr; <b>Executions</b> (left side). Look for <b>onOpen</b> after your reload and note its status and
+      any red error text.</li>
+  </ol></div>
 <div class="box">Set-up also sets the sheet's time zone to India and adds drop-down lists and notes on each column title
   (hover over a title to read who fills it). Running it again never changes tabs that already exist.</div>
 
@@ -1768,7 +1779,8 @@ You can release a date yourself up to 12 hours before it starts; after that plea
 <h2 id="p12"><span class="step-num">12</span>If something goes wrong</h2>
 <div class="table-wrap"><table>
   <tr><th>What you see</th><th>What to do</th></tr>
-  <tr><td>No <b>Program</b> menu in the sheet</td><td>Reload the sheet and wait 10 seconds. Check Code.gs was saved (Part 3).</td></tr>
+  <tr><td>No <b>Program</b> menu in the sheet</td><td>Reload and wait 30 seconds. Check Code.gs was saved (Part 3). Then run <b>setUpSheet</b> and
+    <b>onOpen</b> from the Apps Script tab, and use one Google account per browser window (see the box in Part 5).</td></tr>
   <tr><td>"There is no "Program plan" tab"</td><td>Run <b>Program → Set up the sheet (first time)</b>.</td></tr>
   <tr><td>A plan line made no dates</td><td>Read the <b>Update report</b> tab: it says what is wrong with that line (e.g. "Start is not a time like 6:30 PM").</td></tr>
   <tr><td>Sessions show the wrong time</td><td>Type the time with AM or PM in the plan, then Update slots now.</td></tr>
