@@ -7,7 +7,7 @@
  * Design: docs/followup/SPEC.md and docs/followup/STAGE1_PLAN.md.
  */
 
-var VERSION = 'followup-2026-10-08.6';
+var VERSION = 'followup-2026-10-08.7';
 
 /** Serves the page with the first weeks' dates already inside, so it shows without a second trip to the server. */
 function doGet() {
@@ -75,6 +75,9 @@ var SLOT_COLS = [
 // Earlier titles still work, so a sheet set up before the 2026-10-08 renames keeps working.
 var COL_ALIASES = { day: ['day'], start: ['start'], end: ['end'], centre: ['centre', 'center'], map: ['google map', 'map'], dom: ['date of month'],
   places: ['places'], contact: ['contact'] };
+// Columns the script cannot work without: never added by the script; a missing one is a clear error.
+var PLAN_REQUIRED = ['line', 'day', 'start', 'freq', 'from'];
+var SLOT_REQUIRED = ['id', 'date', 'start', 'places', 'status', 'volunteers'];
 
 // ---------------------------------------------------------------- sheet menu, setup, triggers
 
@@ -98,12 +101,8 @@ function setUpSheet() {
   var ss = openSpreadsheet_();
   ss.setSpreadsheetTimeZone(CONFIG.TIME_ZONE);
   var made = [];
-  if (makeTab_(ss, CONFIG.PLAN_TAB, PLAN_COLS, {
-    start: 'h:mm am/pm', end: 'h:mm am/pm', from: 'd mmm yyyy', until: 'd mmm yyyy', line: '@', centre: '@', address: '@',
-    map: '@', principal: '@', contact: '@', notes: '@' }, {
-    day: ['Every day'].concat(DAY_NAMES.slice(1), DAY_NAMES.slice(0, 1)), freq: FREQUENCIES,
-    week: ['1st', '2nd', '3rd', '4th', '5th'] })) made.push(CONFIG.PLAN_TAB);
-  if (makeTab_(ss, CONFIG.SLOTS_TAB, SLOT_COLS, slotFormats_(), { status: ['Open', 'Cancelled'] })) made.push(CONFIG.SLOTS_TAB);
+  if (makeTab_(ss, CONFIG.PLAN_TAB, PLAN_COLS, planFormats_(), planLists_())) made.push(CONFIG.PLAN_TAB);
+  if (makeTab_(ss, CONFIG.SLOTS_TAB, SLOT_COLS, slotFormats_(), SLOT_LISTS)) made.push(CONFIG.SLOTS_TAB);
   if (!speakersTab_(ss)) {
     ss.insertSheet(CONFIG.SPEAKERS_NEW_TAB_NAME).getRange(1, 1, 1, 3).setValues([['Sr. No.', 'Speaker', CONFIG.SPEAKERS_MOBILE_HEADER]]);
     made.push(CONFIG.SPEAKERS_NEW_TAB_NAME);
@@ -118,6 +117,17 @@ function setUpSheet() {
   try { SpreadsheetApp.getUi().alert(msg); } catch (e) {}
   return msg;
 }
+
+function planFormats_() {
+  return { start: 'h:mm am/pm', end: 'h:mm am/pm', from: 'd mmm yyyy', until: 'd mmm yyyy', line: '@', centre: '@', address: '@',
+    map: '@', principal: '@', contact: '@', notes: '@' };
+}
+
+function planLists_() {
+  return { day: ['Every day'].concat(DAY_NAMES.slice(1), DAY_NAMES.slice(0, 1)), freq: FREQUENCIES, week: ['1st', '2nd', '3rd', '4th', '5th'] };
+}
+
+var SLOT_LISTS = { status: ['Open', 'Cancelled'] };
 
 function slotFormats_() {
   return { id: '@', date: 'ddd d mmm yyyy', day: '@', start: 'h:mm am/pm', end: 'h:mm am/pm', centre: '@', address: '@',
@@ -138,6 +148,46 @@ function makeTab_(ss, name, cols, formats, lists) {
     if (lists[c[0]]) range.setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(lists[c[0]], true).setAllowInvalid(false).build());
   });
   return true;
+}
+
+/**
+ * Brings an existing tab's column titles up to date (the sheet may come from an older sample): an older title such as
+ * "Start", "Centre" or "Contact" is renamed to the current one, and a missing optional column (e.g. "Principal
+ * Contact") is added next to where it belongs. Nothing is done while a required column is missing (that stays a clear
+ * error). Returns the changes in words and the keys of the added columns.
+ */
+function upgradeColumns_(sheet, cols, required, formats, lists) {
+  var heads = sheet.getRange(1, 1, 1, Math.max(1, sheet.getLastColumn())).getDisplayValues()[0];
+  var at = function (col) {                         // 1-based column by current or older title; 0 = not there
+    var names = [norm_(col[1])].concat(COL_ALIASES[col[0]] || []), i = heads.map(norm_).indexOf(norm_(col[1]));
+    if (i < 0) heads.forEach(function (h, j) { if (i < 0 && names.indexOf(norm_(h)) >= 0) i = j; });
+    return i + 1;
+  };
+  var out = { changes: [], added: [] }, prev = 0;
+  if (cols.some(function (col) { return required.indexOf(col[0]) >= 0 && !at(col); })) return out;
+  cols.forEach(function (col) {
+    var n = at(col);
+    if (n && norm_(heads[n - 1]) !== norm_(col[1])) {
+      out.changes.push('"' + heads[n - 1] + '" renamed "' + col[1] + '"');
+      sheet.getRange(1, n).setValue(col[1]);
+      heads[n - 1] = col[1];
+    } else if (!n) {
+      n = prev + 1;
+      if (prev) sheet.insertColumnAfter(prev); else sheet.insertColumnBefore(1);
+      heads.splice(n - 1, 0, col[1]);
+      sheet.getRange(1, n).setValue(col[1]).setFontWeight('bold').setNote(col[2]);
+      if (sheet.getMaxRows() > 1) {                 // a new column copies its neighbour's format and drop-down list
+        var range = sheet.getRange(2, n, sheet.getMaxRows() - 1, 1);
+        if (formats[col[0]]) range.setNumberFormat(formats[col[0]]);
+        range.setDataValidation(lists[col[0]] ? SpreadsheetApp.newDataValidation().requireValueInList(lists[col[0]], true)
+          .setAllowInvalid(false).build() : null);
+      }
+      out.changes.push('column "' + col[1] + '" added');
+      out.added.push(col[0]);
+    }
+    prev = n;
+  });
+  return out;
 }
 
 /** Menu "Program -> Update slots now". */
@@ -161,9 +211,23 @@ function generateSlots() {
   try {
     var ss = openSpreadsheet_(), props = PropertiesService.getScriptProperties();
     var today = todayKey_();
+    var planTab = ss.getSheetByName(CONFIG.PLAN_TAB), slotsTab = ss.getSheetByName(CONFIG.SLOTS_TAB);
+    var upPlan = planTab ? upgradeColumns_(planTab, PLAN_COLS, PLAN_REQUIRED, planFormats_(), planLists_()) : { changes: [] };
+    var upSlots = slotsTab ? upgradeColumns_(slotsTab, SLOT_COLS, SLOT_REQUIRED, slotFormats_(), SLOT_LISTS) : { changes: [], added: [] };
     var slots = readSlots_(ss);
     var plan = readPlan_(ss, slots, props, notes);
     var sheet = slots.sheet, c = slots.cols;
+
+    // Details columns just added to Slots are filled in for today and later dates from their plan line.
+    var fill = upSlots.added.filter(function (k) { return ['centre', 'address', 'map', 'principal', 'contact'].indexOf(k) >= 0; });
+    var lineOf = {}, filled = 0;
+    plan.lines.forEach(function (l) { lineOf[l.id] = l; });
+    if (fill.length) slots.rows.forEach(function (r) {
+      var l = lineOf[r.line], wrote = false;
+      if (!l || r.date < today) return;
+      fill.forEach(function (k) { if (l[k]) { writeText_(sheet, r.row, c[k], l[k]); wrote = true; } });
+      if (wrote) filled++;
+    });
 
     // Rows typed straight into Slots get an ID.
     var taken = {};
@@ -243,7 +307,10 @@ function generateSlots() {
   } finally {
     lock.releaseLock();
   }
-  var summary = 'Slots updated: ' + added + ' added, ' + updated + ' changed, ' + removed + ' removed.';
+  var summary = 'Slots updated: ' + added + ' added, ' + updated + ' changed, ' + removed + ' removed.' +
+    (upPlan.changes.length ? ' Program plan column titles brought up to date: ' + upPlan.changes.join(', ') + '.' : '') +
+    (upSlots.changes.length ? ' Slots column titles brought up to date: ' + upSlots.changes.join(', ') + '.' : '') +
+    (filled ? ' The added column(s) were filled in for ' + filled + ' date(s) from today on, from the Program plan.' : '');
   writeReport_(ss, summary, notes);
   return { summary: summary, added: added, updated: updated, removed: removed, notes: notes };
 }
@@ -262,7 +329,7 @@ function writeReport_(ss, summary, notes) {
 function readPlan_(ss, slots, props, notes) {
   var sheet = ss.getSheetByName(CONFIG.PLAN_TAB);
   if (!sheet) throw new Error('There is no "' + CONFIG.PLAN_TAB + '" tab. Use Program -> Set up the sheet first.');
-  var t = readTable_(sheet, PLAN_COLS, ['line', 'day', 'start', 'freq', 'from']);
+  var t = readTable_(sheet, PLAN_COLS, PLAN_REQUIRED);
   var tz = ss.getSpreadsheetTimeZone(), c = t.cols;
   var max = 0, seen = {}, out = { lines: [], ids: {}, broken: {} };
   var idOf = function (row) { return String(row.display[c.line - 1]).trim().toUpperCase(); };
@@ -408,7 +475,7 @@ function readTable_(sheet, cols, required) {
 function readSlots_(ss) {
   var sheet = ss.getSheetByName(CONFIG.SLOTS_TAB);
   if (!sheet) throw new Error('There is no "' + CONFIG.SLOTS_TAB + '" tab. Use Program -> Set up the sheet first.');
-  var t = readTable_(sheet, SLOT_COLS, ['id', 'date', 'start', 'places', 'status', 'volunteers']);
+  var t = readTable_(sheet, SLOT_COLS, SLOT_REQUIRED);
   var tz = ss.getSpreadsheetTimeZone(), c = t.cols;
   var rows = t.rows.map(function (x) {
     var get = function (k) { return c[k] ? String(x.display[c[k] - 1]).trim() : ''; };

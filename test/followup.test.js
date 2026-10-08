@@ -6,13 +6,17 @@ const PH = ['Line ID', 'Day', 'Start', 'End', 'Frequency', 'Week of month', 'Day
   'Places', 'From', 'Until', 'Contact', 'Notes'];
 const SH = ['Slot ID', 'Date', 'Day', 'Start', 'End', 'Centre', 'Address', 'Map', 'Contact', 'Places', 'Status', 'Volunteers',
   'Still needed', 'Cancellation notice sent', 'Notes'];
-const S = h => SH.indexOf(h);
+// Column of a Slots title in the latest setup()'s sheet. Since 2026-10-08 the generator renames these older titles
+// (and adds "Principal Contact" after "Map"), so positions are looked up, not fixed.
+const NEW = { Start: 'Start Time', End: 'End Time', Centre: 'Institution Name', Places: 'Volunteers Needed', Contact: 'Sahaji Contact' };
+let cur = null;
+const S = h => { const g = cur ? cur.grid[0] : SH; return g.indexOf(h) >= 0 ? g.indexOf(h) : g.indexOf(NEW[h]); };
 // The titles the template creates since 2026-10-08 (the older ones above still work; most tests use them).
 const P2 = ['Line ID', 'Day of the Week', 'Start Time', 'End Time', 'Frequency', 'Week of month', 'Day of month', 'Institution Name', 'Address', 'Google map', 'Volunteers Needed', 'From', 'Until', 'Principal Contact', 'Sahaji Contact', 'Notes'];
 const S2 = ['Slot ID', 'Date', 'Day', 'Start Time', 'End Time', 'Institution Name', 'Address', 'Map', 'Principal Contact', 'Sahaji Contact', 'Volunteers Needed', 'Status', 'Volunteers', 'Still needed', 'Cancellation notice sent', 'Notes'];
 function setup(lines, now) {
   const plan = makeSheet('Program plan', 1, [PH, ...lines.map(o => PH.map(h => o[h] == null ? '' : o[h]))]);
-  const slots = makeSheet('Slots', 2, [SH]);
+  const slots = cur = makeSheet('Slots', 2, [SH]);
   const gs = load([plan, slots], now || NOW, 'followup/Code.gs');
   return { gs, plan, slots, row: id => slots.grid.find(r => r[0] === id), dates: p => slots.grid.filter(r => String(r[0]).startsWith(p + '-')).map(r => r[1]) };
 }
@@ -212,4 +216,36 @@ test('renamed titles (2026-10-08): Principal Contact on every date; a list in on
   assert.match(msgs, /Week of month has more than one value \("1st, 3rd"\)\. Please use one line per week/);
   assert.match(msgs, /Day of month has more than one value \("1, 15"\)\. Please use one line per date/);
   assert.match(msgs, /Week of month must be one of 1st, 2nd, 3rd, 4th or 5th \(numbers only, not "last"\)/, 'user 2026-10-08: numbers only');
+});
+
+test('live sheet 2026-10-08: old Slots titles are renamed, Principal Contact is added after Map and filled in from today on', () => {
+  const row = o => P2.map(h => o[h] == null ? '' : o[h]);
+  const plan = makeSheet('Program plan', 1, [P2, row({ 'Day of the Week': 'Saturday', 'Start Time': '6:30 PM', 'End Time': '7:30 PM',
+    Frequency: 'Weekly', 'Institution Name': 'Ameerpet', 'Volunteers Needed': '2', From: '2026-10-01', Until: '2026-10-31',
+    'Principal Contact': 'Mr Rao 9000000007', 'Sahaji Contact': 'Lakshmi 9000000009' })]);
+  const slots = makeSheet('Slots', 2, [S2]);
+  const gs = load([plan, slots], NOW, 'followup/Code.gs');
+  gs.generateSlots();
+  gs.registerSlots(['P1-20261017'], 1, 'Asha', '9876543210');
+  // Turn Slots into the older sample's tab (old titles, no Principal Contact), plus a past date.
+  slots.grid.forEach(r => r.splice(S2.indexOf('Principal Contact'), 1));
+  slots.grid[0] = SH.slice();
+  const past = slots.grid[1].slice(); past[0] = 'P1-20261003'; past[1] = '2026-10-03';
+  slots.grid.splice(1, 0, past);
+  assert.equal(gs.getSlots('2026-10-10', '2026-10-10', 'Asha').slots[0].principal, '', 'before: no column, so no principal');
+
+  const r = gs.generateSlots();
+  assert.deepEqual(slots.grid[0].slice(0, 16), S2);
+  assert.equal(r.summary, 'Slots updated: 0 added, 0 changed, 0 removed. Slots column titles brought up to date: "Start" renamed ' +
+    '"Start Time", "End" renamed "End Time", "Centre" renamed "Institution Name", column "Principal Contact" added, "Contact" ' +
+    'renamed "Sahaji Contact", "Places" renamed "Volunteers Needed". The added column(s) were filled in for 4 date(s) from today ' +
+    'on, from the Program plan.');
+  const at = (id, h) => slots.grid.find(x => x[0] === id)[S2.indexOf(h)];
+  assert.deepEqual(['P1-20261003', 'P1-20261010', 'P1-20261017', 'P1-20261031'].map(id => at(id, 'Principal Contact')),
+    ['', 'Mr Rao 9000000007', 'Mr Rao 9000000007', 'Mr Rao 9000000007'], 'past date left as it was; booked date filled too');
+  assert.deepEqual([at('P1-20261017', 'Volunteers'), at('P1-20261017', 'Sahaji Contact'), at('P1-20261017', 'Still needed')],
+    ['Asha 9876543210', 'Lakshmi 9000000009', 1], 'nothing else moved');
+  assert.deepEqual(r.notes, [], 'booked dates are not flagged for a missing Principal Contact');
+  assert.equal(gs.getSlots('2026-10-17', '2026-10-17', 'Asha').slots[0].principal, 'Mr Rao 9000000007');
+  assert.equal(gs.generateSlots().summary, 'Slots updated: 0 added, 0 changed, 0 removed.', 'second run changes nothing');
 });

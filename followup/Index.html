@@ -87,7 +87,9 @@
   }
   .card a { color:var(--blue); }
   .people { margin:8px 0 0; padding-left:24px; }
+  .people li { font-weight:600; color:var(--navy); }   /* names and numbers bold, as on the tour page */
   .people li.over { color:var(--err); }
+  .people .via { color:var(--muted); font-weight:400; }
   .act { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .act button { min-width:130px; font-size:17px; }
   .tag { font-weight:700; color:var(--muted); }
@@ -490,7 +492,7 @@
       var call = p.phone ? '<span class="num"> · ' + esc(p.phone) + '</span><a class="call" href="tel:' + telOf(p.phone) + '" target="_top" aria-label="' +
         esc(t('callX', p.name)) + '" title="' + esc(t('callX', p.name)) + '">' + PHONE_ICON + '</a>' : '';   // number on wider screens, call button on phones
       return '<li' + (i >= s.places ? ' class="over"' : '') + '>' + esc(p.name) + call +
-        (p.by ? ' (' + esc(t('via', p.by)) + ')' : '') + x + '</li>';
+        (p.by ? ' <span class="via">(' + esc(t('via', p.by)) + ')</span>' : '') + x + '</li>';
     }).join('');
     var myPeople = s.people.filter(function (p) { return norm(p.name) === me() || norm(p.by) === me(); });
     var act;

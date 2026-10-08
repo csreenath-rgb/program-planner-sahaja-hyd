@@ -20,6 +20,8 @@ function makeSheet(name, id, grid) {
     grid: g, writes: 0,
     getName: () => name, getSheetId: () => id, getMaxColumns: () => maxCols,
     insertColumnsAfter: (after, n) => { maxCols += n; },
+    insertColumnAfter: after => { g.forEach(r => { if (r.length > after) r.splice(after, 0, ''); }); maxCols++; sheet.writes++; },
+    insertColumnBefore: before => sheet.insertColumnAfter(before - 1),
     getMaxRows: () => maxRows, insertRowsAfter: (after, n) => { maxRows += n; },
     deleteRow: r => { g.splice(r - 1, 1); sheet.writes++; }, setFrozenRows: () => {},
     getLastRow: () => { for (let r = g.length; r > 0; r--) if (g[r-1].some(v => v !== '')) return r; return 0; },
@@ -35,7 +37,7 @@ function makeSheet(name, id, grid) {
         setValues: vals => { vals.forEach((row, i) => row.forEach((v, j) => { while (g.length < r + i) g.push([]); g[r - 1 + i][c - 1 + j] = v; })); sheet.writes++; return rng; },
         setValue: v => { if (rng.fmt !== '@' && /^=/.test(v)) throw new Error('formula written'); set(v); return rng; },
         clearContent: () => { set(''); return rng; },
-        setDataValidation: v => { rng.validation = v; return rng; }, setFontWeight: () => rng, setNotes: () => rng,
+        setDataValidation: v => { rng.validation = v; return rng; }, setFontWeight: () => rng, setNotes: () => rng, setNote: n => { rng.note = n; return rng; },
         sort: specs => { // sorts rows r..r+nr-1 by [{column, ascending}] like Range.sort
           const key = v => v instanceof Date ? v.getTime() : String(v == null ? '' : v);
           const rows = g.slice(r - 1, r - 1 + nr);

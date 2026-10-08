@@ -179,6 +179,8 @@ test('follow-up page: register others, ✕ and Release all, My registrations, ca
     const card = p.locator('article[data-id="P1-20261010"]');
     await p.waitForSelector('article[data-id="P1-20261010"] button[data-group]');
     assert.deepEqual(await card.locator('li.over').allTextContents(), ['Meena · 9234567890 (via Asha)✕'], 'over the limit in red');
+    assert.deepEqual(await card.locator('li').first().evaluate(li => [getComputedStyle(li).fontWeight, getComputedStyle(li.querySelector('.via')).fontWeight]),
+      ['600', '400'], 'names and numbers bold, "via" plain (as on the tour page)');
     assert.equal(await card.locator('button.x').count(), 3);
     assert.equal(await card.locator('button[data-group]').textContent(), 'Release all 3 for this date');
     if (process.env.SHOT2) { await p.setViewportSize({ width: 390, height: 1900 }); await p.evaluate(() => window.scrollTo(0, 0)); await p.screenshot({ path: process.env.SHOT2 }); await p.setViewportSize({ width: 390, height: 900 }); }
