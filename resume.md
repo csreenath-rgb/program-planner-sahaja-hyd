@@ -92,6 +92,9 @@ every session: replace "Where things stand" and "Next steps", and add to "Learni
   `deleteRow`, `insertRowsAfter`/`getMaxRows`, `Range.sort`, `setFrozenRows`, `setFontWeight`, `setNotes`.
 
 ## 5. Learnings (add new ones; keep old ones)
+- 2026-10-08: **Two sets of demo videos share the same file names** (`docs/demo*.mp4` tour, `docs/followup/demo*.mp4`
+  Follow-up), so uploads to Drive get swapped easily. When giving the user files to upload, name the exact folder and
+  say what the first frame shows. Google Drive is not reachable from the cloud session (403), so the user must check it.
 - 2026-10-08: **Tests that build old-title sheets must find columns by title** once the generator renames titles
   (`S()` in `test/followup.test.js` reads the live header row). Fixed positions broke 6 tests at once.
 - 2026-10-08: **When the user's sheet shows less than expected, ask for the live file (or its title rows) first**: the

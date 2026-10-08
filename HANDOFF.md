@@ -336,6 +336,18 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-08: user: the Follow-up page's demo button plays the TOUR videos.** Checked every version of
+  `followup/Index.html`: it has only ever pointed at the Follow-up videos (Drive en 1XshvyqAgaCgKGTKlMG_DQt3YVApHH7Gi,
+  te 12YBe_afPiP3vGaH2egcwJ3J7hp9M1bxu, hi 1bkxi19Gq8C4MmXqxVxn8To653AQxBoLH, the user's links; GitHub copies of
+  `docs/followup/demo*.mp4`), never at the tour's (Drive 1L1A_Fml..., 1ut0WKW9..., 1Hf3clK7...). So the three Drive
+  files most likely hold the tour videos: both sets share the file names demo.mp4 / demo-te.mp4 / demo-hi.mp4 (tour in
+  `docs/`, Follow-up in `docs/followup/`). Could not open Drive from the session (network policy: drive.google.com and
+  drive.usercontent.google.com denied, 403). Asked the user to check each Drive link (tour video = "Hyderabad 2026 -
+  Self Realization Tour" at the top; Follow-up = "Follow-up Program" + day boxes) and upload `docs/followup/demo*.mp4`
+  as a new version of each (Manage versions keeps the links; no code change), and to check the three tour Drive files
+  still hold the new tour videos (step 7 "Ongoing programs"). Not done, for the next code change: the Follow-up page's
+  GitHub fallback copies still point at MamtaMukeshK/task-self-assign-sahaja-hyd@becaae3 (they work; re-pin to the fork
+  like the tour page).
 - **2026-10-08: second week in the calendar: MOCK-UP ONLY, waiting for the user's go.** User: "add another week which looks
   same as current week but below it", then "show me the mockup before starting work on it". Mock-up (scratch copy of the
   page, real page unchanged): `docs/followup/mockup-two-weeks/` (`mock.js` re-renders `mock-phone.png`, `mock-laptop.png`;
