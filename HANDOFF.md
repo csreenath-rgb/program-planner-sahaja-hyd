@@ -336,6 +336,14 @@ _Last updated: 2026-10-08 (tour 2026-10-07.1 merged into main at the user's requ
   if not, the page errors loudly rather than guessing.
 
 ## Next step
+- **2026-10-09: Principal and Sahaji contacts get the volunteers' call button (version followup-2026-10-09.1).** User: "make
+  the sahaji and principal phone numbers also dialable by clicking the phone icon" and "they should continue to be shown
+  only when Details button is clicked". `telLink()` in `followup/Index.html` now returns the text with the number in
+  `<span class="num">` (the space before it included) plus `<a class="call">` (same icon, +91, `target="_top"`, "Call <name>"
+  in en/te/hi). Phones: number hidden, round button shown (`.card .num`); still inside Details, so hidden until Details is
+  tapped (unchanged; test checks it). Wider screens: the number as plain text, no button; the earlier `pointer-events`
+  rule is gone (no plain tel: links left). The "Please call ..." line when release is closed uses the same helper. Tests
+  updated; 94 pass; phone screenshot checked (card closed / Details open).
 - **2026-10-08: computer layout, contacts, booked-date contacts (version followup-2026-10-08.9).** User: on a computer the
   Details contact links do nothing; the screen looks half empty; the calendar should show all 7 days in a row and 2 weeks
   in 2 rows. Also: the three Follow-up Drive videos are now replaced by the user (Follow-up demo button fixed on their

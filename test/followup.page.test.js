@@ -56,9 +56,10 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
       'no name typed yet: no ✕ and no Release all on people who signed themselves up');
     assert.equal(await card10.locator('.more').isVisible(), false);
     await card10.locator('button[data-dtl]').click();
-    assert.equal(await card10.locator('.more').innerText(), 'Principal: Mr Rao 9000000007\nSahaji contact: Lakshmi 9000000009', 'both contacts');
-    assert.deepEqual(await card10.locator('.more a').evaluateAll(as => as.map(a => [a.getAttribute('href'), a.target])),
-      [['tel:+919000000007', '_top'], ['tel:+919000000009', '_top']], 'tap to call, from inside Google\'s frame');
+    assert.equal(await card10.locator('.more').innerText(), 'Principal: Mr Rao\nSahaji contact: Lakshmi', 'both contacts; on a phone a call button instead of the number');
+    assert.deepEqual(await card10.locator('.more a.call').evaluateAll(as => as.map(a => [a.getAttribute('href'), a.target, a.getAttribute('aria-label')])),
+      [['tel:+919000000007', '_top', 'Call Mr Rao'], ['tel:+919000000009', '_top', 'Call Lakshmi']], 'tap to call, from inside Google\'s frame');
+    assert.deepEqual(await card10.locator('.more a.call').evaluateAll(as => as.map(a => a.getBoundingClientRect().width)), [34, 34]);
     // Volunteers' numbers: a round call button on phones (as on the tour page); the number itself on wider screens.
     const call = card10.locator('li a.call');
     assert.deepEqual(await call.evaluate(a => [a.getAttribute('href'), a.target, a.getAttribute('aria-label')]), ['tel:+919345678901', '_top', 'Call Gita']);
@@ -96,8 +97,8 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
     await p.waitForSelector('#confirm:not([hidden])');
     await p.click('#confirmGo');
     await p.waitForSelector('article[data-id="P2-20261007"] .closed');
-    assert.match(await p.locator('article[data-id="P2-20261007"] .act').innerText(), /Release closed - under 12 h to go\.\s+Please call Lakshmi 9000000009/);
-    assert.equal(await p.locator('article[data-id="P2-20261007"] .act a[href="tel:+919000000009"]').count(), 1, 'the "Please call" link');
+    assert.match(await p.locator('article[data-id="P2-20261007"] .act').innerText(), /Release closed - under 12 h to go\.\s+Please call Lakshmi/);
+    assert.ok(await p.locator('article[data-id="P2-20261007"] .act a.call[href="tel:+919000000009"]').isVisible(), 'the "Please call" call button');
 
     // Next week and "Show 2 more weeks" load more dates; no sideways scrolling on a phone or a laptop.
     await p.click('#nextWeek');
@@ -123,8 +124,9 @@ test('follow-up page: calendar, select + repeat, confirmation, release, 12-hour 
     await p.click('#prevWeek'); await p.click('#prevWeek');
     await p.waitForFunction(() => document.getElementById('calRange').textContent === '7 Oct – 20 Oct');
     assert.ok(await p.locator('#prevWeek').isDisabled(), 'never before today');
-    assert.deepEqual(await p.locator('article[data-id="P1-20261031"] .more a').evaluateAll(as => as.map(a => getComputedStyle(a).pointerEvents)),
-      ['none', 'none'], 'laptop: contact numbers are plain text (calling works on phones only)');
+    assert.deepEqual([await p.locator('article[data-id="P1-20261031"] .more a.call').evaluateAll(as => as.filter(a => a.offsetWidth).length),
+      await p.locator('article[data-id="P1-20261031"] .more').innerText()], [0, 'Principal: Mr Rao 9000000007\nSahaji contact: Lakshmi 9000000009'],
+      'laptop: contact numbers as text, no call buttons (calling works on phones only)');
     assert.ok(await p.locator('article[data-id="P1-20261031"] .more').isVisible(), 'laptop: contacts shown without Details');
     assert.equal(await p.locator('article[data-id="P1-20261031"] button[data-dtl]').isVisible(), false);
     assert.deepEqual([await p.locator('article[data-id="P1-20261031"] li a.call').first().isVisible(),

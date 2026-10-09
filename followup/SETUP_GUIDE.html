@@ -120,7 +120,7 @@ Takes about 20 minutes on a laptop or desktop computer (not a phone).</p>
  * Design: docs/followup/SPEC.md and docs/followup/STAGE1_PLAN.md.
  */
 
-var VERSION = 'followup-2026-10-08.9';
+var VERSION = 'followup-2026-10-09.1';
 
 /** Serves the page with the first weeks' dates already inside, so it shows without a second trip to the server. */
 function doGet() {
@@ -1150,8 +1150,7 @@ function norm_(s) { return String(s).toLowerCase().replace(/\s+/g, ' ').trim(); 
   /* Contacts sit behind "Details" on phones and show without it on tablets and laptops, as on the tour page. */
   .card .more { display:none; margin-top:4px; }
   .card.open .more { display:block; }
-  @media (min-width: 701px) { .card .more { display:block; } button.dtl { display:none; }
-    .card a[href^="tel:"] { pointer-events:none; color:inherit; text-decoration:none; } }   /* calling works on phones only */
+  @media (min-width: 701px) { .card .more { display:block; } button.dtl { display:none; } }
   /* Computers: dates side by side across the screen (each date's sessions under it); calendar: 2 rows of 7 days + total */
   @media (min-width: 1024px) {
     #list { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:0 16px; align-items:start; }
@@ -1159,10 +1158,10 @@ function norm_(s) { return String(s).toLowerCase().replace(/\s+/g, ' ').trim(); 
     #cal { max-width:none; }
     #calGrid { grid-template-columns:repeat(8, 1fr); }
   }
-  /* Phones: a round call button next to each volunteer's name instead of the number (as on the tour page). */
+  /* Phones: a round call button instead of the number, for volunteers (as on the tour page) and the Principal / Sahaji contacts. */
   a.call { display:none; }
   @media (max-width: 700px) {
-    .people .num { display:none; }
+    .card .num { display:none; }
     a.call { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; margin-left:8px; vertical-align:middle;
              border-radius:50%; background:var(--band); color:var(--navy); }
     a.call svg { width:18px; height:18px; }
@@ -1614,9 +1613,14 @@ function norm_(s) { return String(s).toLowerCase().replace(/\s+/g, ' ').trim(); 
     if (d.length === 11 &amp;&amp; d.charAt(0) === '0') return '+91' + d.slice(1);
     return d;
   }
-  function telLink(text) { // the whole text, tappable to call when it holds a phone number
+  function telLink(text) { // a contact like the volunteers: its number on wider screens, a call button on phones
     var m = /\+?\d[\d\s\-]{8,}\d/.exec(text);
-    return m ? '&lt;a href="tel:' + telOf(m[0]) + '" target="_top"&gt;' + esc(text) + '&lt;/a&gt;' : esc(text);   // _top: the page runs inside Google's frame
+    if (!m) return esc(text);
+    var who = (text.slice(0, m.index) + text.slice(m.index + m[0].length)).replace(/\s+/g, ' ').trim() || m[0];
+    var pre = text.slice(0, m.index), gap = /\s*$/.exec(pre)[0];                  // the space before the number hides with it
+    return esc(pre.slice(0, pre.length - gap.length)) + '&lt;span class="num"&gt;' + esc(gap + m[0]) + '&lt;/span&gt;' + esc(text.slice(m.index + m[0].length)) +
+      '&lt;a class="call" href="tel:' + telOf(m[0]) + '" target="_top" aria-label="' + esc(t('callX', who)) + '" title="' + esc(t('callX', who)) +
+      '"&gt;' + PHONE_ICON + '&lt;/a&gt;';   // _top: the page runs inside Google's frame
   }
   function contact(text) {
     var parts = t('call', '\u0000').split('\u0000');
